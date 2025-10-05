@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UA 加油单计算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        .header {
+            text-align: center;
+            font-weight: bold;
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #0066cc;
+            color: #0066cc;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            border: 1px solid #ccc;
+            padding: 5px;
+            box-sizing: border-box;
+            border-radius: 3px;
+        }
+        .result-cell {
+            background-color: #f9f9f9;
+            font-weight: bold;
+        }
+        .section-title {
+            background-color: #e6f2ff;
+            font-weight: bold;
+            text-align: center;
+        }
+        .note {
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+        }
+        .formula-cell {
+            background-color: #fffacd;
+            font-weight: bold;
+        }
+        .input-section {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .input-section h3 {
+            margin-top: 0;
+            color: #0066cc;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        .calculation-section {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-radius: 5px;
+            border-left: 4px solid #0066cc;
+        }
+        .calculation-section h3 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+        .tolerance-info {
+            background-color: #fff0f0;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 4px solid #cc0000;
+        }
+        .btn-calculate {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .btn-calculate:hover {
+            background-color: #0055aa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">聯合航空加油單</div>
+
+        <div class="input-section">
+            <h3>燃油分布 (LBS)</h3>
+            <table>
+                <tr>
+                    <th>TANK</th>
+                    <th>BEFORE</th>
+                    <th>DESIRED</th>
+                    <th>AFTER</th>
+                </tr>
+                <tr>
+                    <td>L WING</td>
+                    <td><input type="number" id="k13" value="0"></td>
+                    <td class="note">電報會印</td>
+                    <td><input type="number" id="o13" value="0"></td>
+                </tr>
+                <tr>
+                    <td>CENTER</td>
+                    <td><input type="number" id="k15" value="0"></td>
+                    <td class="note">電報會印</td>
+                    <td><input type="number" id="o15" value="0"></td>
+                </tr>
+                <tr>
+                    <td>R WING</td>
+                    <td><input type="number" id="k17" value="0"></td>
+                    <td class="note">電報會印</td>
+                    <td><input type="number" id="o17" value="0"></td>
+                </tr>
+                <tr>
+                    <td>TOTAL</td>
+                    <td id="k19" class="formula-cell">0</td>
+                    <td>TOTAL</td>
+                    <td id="o19" class="formula-cell">0</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="input-section">
+            <h3>计划加油计算</h3>
+            <table>
+                <tr>
+                    <td>PLANNED GATE FUEL</td>
+                    <td><input type="number" id="k21" value="0" class="note"> <span class="note">填電報需求油量</span></td>
+                </tr>
+                <tr>
+                    <td>SUBTRACT BEFORE FUEL TOTAL</td>
+                    <td id="k23" class="formula-cell">0</td>
+                </tr>
+                <tr>
+                    <td>EQUALS POUNDS TO ADD/REMOVE</td>
+                    <td id="k25" class="formula-cell">0</td>
+                </tr>
+                <tr>
+                    <td>DIVIDED BY DENSITY</td>
+                    <td><input type="number" id="k27" value="0" step="0.01" class="note"> <span class="note">填電報密度</span></td>
+                </tr>
+                <tr>
+                    <td>CALCULATED GALLONS TO ADD /REMOVE</td>
+                    <td id="i29" class="formula-cell">0</td>
+                </tr>
+                <tr>
+                    <td>ROUNDED GALLONS</td>
+                    <td id="k29" class="formula-cell">0</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="calculation-section">
+            <h3>实际加油量计算</h3>
+            <table>
+                <tr>
+                    <td>ACTUAL LITERS ADDED</td>
+                    <td><input type="number" id="h45" value="0" class="note"> <span class="note">加完油後 油單顯示的LITTERS</span></td>
+                </tr>
+                <tr>
+                    <td>ACTUAL GALLONS ADDED</td>
+                    <td id="k45" class="formula-cell">0</td>
+                </tr>
+                <tr>
+                    <td>SUBTRACT FUEL GALLONS ADDED</td>
+                    <td id="k33" class="formula-cell">0</td>
+                </tr>
+                <tr>
+                    <td>EQUALS</td>
+                    <td id="k36" class="formula-cell">0</td>
+                </tr>
+                <tr>
+                    <td>TOLERANCE</td>
+                    <td id="o36" class="formula-cell">0</td>
+                </tr>
+            </table>
+
+            <div class="tolerance-info">
+                <h4>公差范围计算</h4>
+                <table>
+                    <tr>
+                        <td>CALC GALS - TOL(75) =</td>
+                        <td id="h41" class="formula-cell">0</td>
+                        <td>GALS * 3.78541 =</td>
+                        <td id="j41" class="formula-cell">0</td>
+                        <td>MIN LITERS TO BE ADDED</td>
+                        <td id="k41" class="formula-cell">0</td>
+                    </tr>
+                    <tr>
+                        <td>CALC GALS + TOL(75) =</td>
+                        <td id="h43" class="formula-cell">0</td>
+                        <td>GALS * 3.78541 =</td>
+                        <td id="j43" class="formula-cell">0</td>
+                        <td>MAX LITERS TO BE ADDED</td>
+                        <td id="k43" class="formula-cell">0</td>
+                    </tr>
+                </table>
+                <p class="note">於油單勾選 正 75 / 負 75 GALLONS</p>
+            </div>
+        </div>
+
+        <button class="btn-calculate" onclick="calculateAll()">重新计算</button>
+    </div>
+
+    <script>
+        // 获取所有输入元素
+        const k13 = document.getElementById('k13');
+        const k15 = document.getElementById('k15');
+        const k17 = document.getElementById('k17');
+        const o13 = document.getElementById('o13');
+        const o15 = document.getElementById('o15');
+        const o17 = document.getElementById('o17');
+        const k21 = document.getElementById('k21');
+        const k27 = document.getElementById('k27');
+        const h45 = document.getElementById('h45');
+
+        // 获取所有结果显示元素
+        const k19 = document.getElementById('k19');
+        const o19 = document.getElementById('o19');
+        const k23 = document.getElementById('k23');
+        const k25 = document.getElementById('k25');
+        const i29 = document.getElementById('i29');
+        const k29 = document.getElementById('k29');
+        const k33 = document.getElementById('k33');
+        const k36 = document.getElementById('k36');
+        const o36 = document.getElementById('o36');
+        const h41 = document.getElementById('h41');
+        const j41 = document.getElementById('j41');
+        const k41 = document.getElementById('k41');
+        const h43 = document.getElementById('h43');
+        const j43 = document.getElementById('j43');
+        const k43 = document.getElementById('k43');
+        const k45 = document.getElementById('k45');
+
+        // 添加事件监听器
+        [k13, k15, k17, o13, o15, o17, k21, k27, h45].forEach(input => {
+            input.addEventListener('input', calculateAll);
+        });
+
+        // 执行所有计算
+        function calculateAll() {
+            // K19 = K13 + K15 + K17
+            const k19Value = parseFloat(k13.value || 0) + parseFloat(k15.value || 0) + parseFloat(k17.value || 0);
+            k19.textContent = k19Value.toFixed(2);
+            
+            // O19 = O13 + O15 + O17
+            const o19Value = parseFloat(o13.value || 0) + parseFloat(o15.value || 0) + parseFloat(o17.value || 0);
+            o19.textContent = o19Value.toFixed(2);
+            
+            // K23 = K19
+            k23.textContent = k19Value.toFixed(2);
+            
+            // K25 = K21 - K23
+            const k21Value = parseFloat(k21.value || 0);
+            const k25Value = k21Value - k19Value;
+            k25.textContent = k25Value.toFixed(2);
+            
+            // I29 = K25 / K27
+            const k27Value = parseFloat(k27.value || 1);
+            const i29Value = k25Value / k27Value;
+            i29.textContent = i29Value.toFixed(2);
+            
+            // K29 = ROUND(I29, 0)
+            const k29Value = Math.round(i29Value);
+            k29.textContent = k29Value;
+            
+            // K45 = ROUND(H45 / 3.78541, 0)
+            const h45Value = parseFloat(h45.value || 0);
+            const k45Value = Math.round(h45Value / 3.78541);
+            k45.textContent = k45Value;
+            
+            // K33 = K45
+            k33.textContent = k45Value;
+            
+            // K36 = K33 - K29
+            const k36Value = k45Value - k29Value;
+            k36.textContent = k36Value;
+            
+            // O36 = IF(K36>0,"+75","-75")
+            o36.textContent = k36Value > 0 ? "+75" : "-75";
+            
+            // H41 = K29 - 75
+            const h41Value = k29Value - 75;
+            h41.textContent = h41Value;
+            
+            // J41 = H41 * 3.78541
+            const j41Value = h41Value * 3.78541;
+            j41.textContent = j41Value.toFixed(2);
+            
+            // K41 = ROUND(J41, 0)
+            k41.textContent = Math.round(j41Value);
+            
+            // H43 = K29 + 75
+            const h43Value = k29Value + 75;
+            h43.textContent = h43Value;
+            
+            // J43 = H43 * 3.78541
+            const j43Value = h43Value * 3.78541;
+            j43.textContent = j43Value.toFixed(2);
+            
+            // K43 = ROUND(J43, 0)
+            k43.textContent = Math.round(j43Value);
+        }
+
+        // 初始化计算
+        calculateAll();
+    </script>
+</body>
+</html>
